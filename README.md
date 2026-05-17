@@ -1,94 +1,138 @@
-# Laboratory work III
+# Laboratory work III dz
 
-Цель данной лабораторной работы заключалась в том, чтобы ознакомиться с системами автоматизации сборки проекта на примере CMake.
 B данной работе было выполнено следующее:
 
-## 1. Был скопирован репозиторий из предыдущей лабораторной работы
+## 1. Был скопирован репозиторий из лабораторной работы и исходные папки из репозитория лабораторной работы
 ```bash
 vdeo@deo:~$ export GITHUB_USERNAME=EighthBroom3439
-vdeo@deo:~$ cd ${GITHUB_USERNAME}/workspace
-vdeo@deo:~/EighthBroom3439/workspace$ pushd .
-~/EighthBroom3439/workspace ~/EighthBroom3439/workspace
-vdeo@deo:~/EighthBroom3439/workspace$ source scripts/activate
-vdeo@deo:~/EighthBroom3439/workspace$ git clone -b master https://github.com/${GITHUB_USERNAME}/lab02.git projects/lab03
-Клонирование в «projects/lab03»...
-remote: Enumerating objects: 67, done.
-remote: Counting objects: 100% (67/67), done.
-remote: Compressing objects: 100% (46/46), done.
-remote: Total 67 (delta 23), reused 46 (delta 13), pack-reused 0 (from 0)
-Получение объектов: 100% (67/67), 19.31 КиБ | 420.00 КиБ/с, готово.
-Определение изменений: 100% (23/23), готово.vdeo@deo:~/EighthBroom3439/workspace$ cd projects/lab03
-vdeo@deo:~/EighthBroom3439/workspace/projects/lab03$ git remote remove origin
-vdeo@deo:~/EighthBroom3439/workspace/projects/lab03$ git remote add origin https://github.com/${GITHUB_USERNAME}/lab03.git
+vdeo@deo:~$ cd ${GITHUB_USERNAME}/workspace/
+vdeo@deo:~/EighthBroom3439/workspace$ git clone https://github.com/${GITHUB_USERNAME}/lab03.git lab03dz
+Клонирование в «lab03dz»...
+remote: Enumerating objects: 73, done.
+remote: Counting objects: 100% (73/73), done.
+remote: Compressing objects: 100% (41/41), done.
+remote: Total 73 (delta 24), reused 73 (delta 24), pack-reused 0 (from 0)
+Получение объектов: 100% (73/73), 23.10 КиБ | 2.89 МиБ/с, готово.
+Определение изменений: 100% (24/24), готово.
+vdeo@deo:~/EighthBroom3439/workspace$ cd lab03dz/
+vdeo@deo:~/EighthBroom3439/workspace/lab03dz$ git remote remove origin
+vdeo@deo:~/EighthBroom3439/workspace/lab03dz$ git remote add origin https://github.com/${GITHUB_USERNAME}/lab03dz
+vdeo@deo:~/EighthBroom3439/workspace/lab03dz$ cd ..
+vdeo@deo:~/EighthBroom3439/workspace$ git clone https://github.com/tp-labs/lab03.git templab03
+Клонирование в «templab03»...
+remote: Enumerating objects: 91, done.
+remote: Counting objects: 100% (30/30), done.
+remote: Compressing objects: 100% (9/9), done.
+remote: Total 91 (delta 23), reused 21 (delta 21), pack-reused 61 (from 1)
+Получение объектов: 100% (91/91), 1.02 МиБ | 3.31 МиБ/с, готово.
+Определение изменений: 100% (41/41), готово.
+vdeo@deo:~/EighthBroom3439/workspace$ cp - r templab03/formatter_lib ./lab03dz
+cp: не удалось выполнить stat для '-': Нет такого файла или каталога
+cp: не удалось выполнить stat для 'r': Нет такого файла или каталога
+cp: не указан -r; пропускается каталог 'templab03/formatter_lib'
+vdeo@deo:~/EighthBroom3439/workspace$ cp -r templab03/formatter_lib ./lab03dz
+vdeo@deo:~/EighthBroom3439/workspace$ cp -r templab03/formatter_ex_lib ./lab03dz
+vdeo@deo:~/EighthBroom3439/workspace$ cp -r templab03/solver_lib ./lab03dz
+vdeo@deo:~/EighthBroom3439/workspace$ cp -r templab03/hello_world_application ./lab03dz
+vdeo@deo:~/EighthBroom3439/workspace$ cp -r templab03/solver_application ./lab03dz
+vdeo@deo:~/EighthBroom3439/workspace$ rm -rf templab03/
 ```
 
-## 2. Была выполнена компиляция ручная компиляция файлов из предыдущей лабораторной работы
+## 2. Был создан CMakeLists.txt для папки formatter_lib
 ```bash
-vdeo@deo:~/EighthBroom3439/workspace/projects/lab03$ g++ -std=c++11 -I./include -c sources/print.cpp
-vdeo@deo:~/EighthBroom3439/workspace/projects/lab03$ ls print.o 
-print.o
-vdeo@deo:~/EighthBroom3439/workspace/projects/lab03$ nm print.o | grep print
-0000000000000000 T _Z5printRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEERSo
-0000000000000026 T _Z5printRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEERSt14basic_ofstreamIcS2_E
-vdeo@deo:~/EighthBroom3439/workspace/projects/lab03$ ar rvs print.a print.o
-ar: создаётся print.a
-a - print.o
-vdeo@deo:~/EighthBroom3439/workspace/projects/lab03$ file print.a
-print.a: current ar archive
-vdeo@deo:~/EighthBroom3439/workspace/projects/lab03$ g++ -std=c++11 -I./include -c examples/example1.cpp 
-vdeo@deo:~/EighthBroom3439/workspace/projects/lab03$ ls example1.o
-example1.o
-vdeo@deo:~/EighthBroom3439/workspace/projects/lab03$ g++ example1.o print.a -o example1
-vdeo@deo:~/EighthBroom3439/workspace/projects/lab03$ ./example1 && echo
-hello
-vdeo@deo:~/EighthBroom3439/workspace/projects/lab03$ g++ -std=c++11 -I./include -c examples/example2.cpp 
-vdeo@deo:~/EighthBroom3439/workspace/projects/lab03$ nm example2.o
-0000000000000000 V DW.ref.__gxx_personality_v0
-                 U __gxx_personality_v0
-0000000000000000 T main
-                 U _Unwind_Resume
-                 U _Z5printRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEERSt14basic_ofstreamIcS2_E
-                 U _ZNSt14basic_ofstreamIcSt11char_traitsIcEEC1EPKcSt13_Ios_Openmode
-                 U _ZNSt14basic_ofstreamIcSt11char_traitsIcEED1Ev
-0000000000000000 W _ZNSt15__new_allocatorIcED1Ev
-0000000000000000 W _ZNSt15__new_allocatorIcED2Ev
-0000000000000000 n _ZNSt15__new_allocatorIcED5Ev
-                 U _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEC1EPKcRKS3_
-                 U _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEED1Ev
-                 U _ZSt21ios_base_library_initv
-0000000000000000 r _ZStL19piecewise_construct
-vdeo@deo:~/EighthBroom3439/workspace/projects/lab03$ g++ example2.o print.a -o example2
-vdeo@deo:~/EighthBroom3439/workspace/projects/lab03$ ./example2
-vdeo@deo:~/EighthBroom3439/workspace/projects/lab03$ cat log.txt && echo
-hello
-```
-
-## 3. Был создан CMakeList.txt
-```bash
-vdeo@deo:~/EighthBroom3439/workspace/projects/lab03$ cat > CMakeLists.txt <<EOF
-> cmake_minimum_required(VERSION 3.4)
-> project(print)
-> EOF
-vdeo@deo:~/EighthBroom3439/workspace/projects/lab03$ cat >> CMakeLists.txt <<EOF
+vdeo@deo:~/EighthBroom3439/workspace/lab03dz$ cat > formatter_lib/CMakeLists.txt << 'EOF'
+> cmake_minimum_required(VERSION 3.10)
+> project(formatter_lib VERSION 1.0)
+> 
 > set(CMAKE_CXX_STANDARD 11)
 > set(CMAKE_CXX_STANDARD_REQUIRED ON)
+> 
+> add_library(formatter STATIC formatter.cpp)
+> 
+> target_include_directories(formatter PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 > EOF
-vdeo@deo:~/EighthBroom3439/workspace/projects/lab03$ cat >> CMakeLists.txt <<EOF
-> add_library(print STATIC \${CMAKE_CURRENT_SOURCE_DIR}/sources/print.cpp)
+```
+
+## 3. Был создан CMakeLists.txt для formatter_ex_lib
+```bash
+vdeo@deo:~/EighthBroom3439/workspace/lab03dz$ cat > formatter_ex_lib/CMakeLists.txt <<'EOF'
+> cmake_minimum_required(VERSION 3.10)
+> project(formatter_ex_lib VERSION 1.0)
+> 
+> set(CMAKE_CXX_STANDARD 11)
+> set(CMAKE_CXX_STANDARD_REQUIRED ON)
+> 
+> add_library(formatter_ex STATIC formatter_ex.cpp)
+> 
+> target_include_directories(formatter_ex PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+> 
+> target_link_libraries(formatter_ex PUBLIC formatter)
 > EOF
-vdeo@deo:~/EighthBroom3439/workspace/projects/lab03$ cat >> CMakeLists.txt <<EOF
-> include_directories(\${CMAKE_CURRENT_SOURCE_DIR}/include)
+```
+
+## 4. Был создан CMakeLists.txt для solver_lib
+```bash
+vdeo@deo:~/EighthBroom3439/workspace/lab03dz$ cat > solver_lib/CMakeLists.txt <<'EOF'
+> cmake_minimum_required(VERSION 3.10)
+> project(solver_lib VERSION 1.0)
+> 
+> set(CMAKE_CXX_STANDARD 11)
+> set(CMAKE_CXX_STANDARD_REQUIRED ON)
+> 
+> add_library(solver_lib STATIC solver.cpp)
+> 
+> target_include_directories(solver_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 > EOF
-vdeo@deo:~/EighthBroom3439/workspace/projects/lab03$ cmake -H. -B_build
-CMake Deprecation Warning at CMakeLists.txt:1 (cmake_minimum_required):
-  Compatibility with CMake < 3.10 will be removed from a future version of
-  CMake.
+```
 
-  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
-  to tell CMake that the project requires at least <min> but has been updated
-  to work with policies introduced by <max> or earlier.
+## 5. Был создан CMakeLists.txt для hello_world_application
+```bash
+vdeo@deo:~/EighthBroom3439/workspace/lab03dz$ cat > hello_world_application/CMakeLists.txt << 'EOF'
+> cmake_minimum_required(VERSION 3.10)
+> project(hello_world)
+> 
+> set(CMAKE_CXX_STANDARD 11)
+> 
+> add_executable(hello_world hello_world.cpp)
+> 
+> target_link_libraries(hello_world PRIVATE formatter_ex)
+> EOF
+```
 
+## 6. Был создан CMakeLists.txt для solver_application
+```bash
+vdeo@deo:~/EighthBroom3439/workspace/lab03dz$ cat > solver_application/CMakeLists.txt <<'EOF'
+> cmake_minimum_required(VERSION 3.10)
+> project(solver)
+> 
+> set(CMAKE_CXX_STANDARD 11)
+> 
+> add_executable(solver equation.cpp)
+> 
+> target_link_libraries(solver PRIVATE formatter_ex solver_lib)
+> EOF
+```
 
+## 7. Был создан CMakeLists.txt, объединяющий весь проект
+```bash
+vdeo@deo:~/EighthBroom3439/workspace/lab03dz$ cat > CMakeLists.txt <<'EOF'
+> cmake_minimum_required(VERSION 3.10)
+> project(FormatterInc)
+> 
+> add_subdirectory(formatter_lib)
+> add_subdirectory(formatter_ex_lib)
+> add_subdirectory(solver_lib)
+> 
+> add_subdirectory(hello_world_application)
+> add_subdirectory(solver_application)
+> EOF
+```
+
+## 8. Была обнаружена ошибка в solver.cpp
+```bash
+vdeo@deo:~/EighthBroom3439/workspace/lab03dz$ rm -rf build
+vdeo@deo:~/EighthBroom3439/workspace/lab03dz$ mkdir build && cd build
+vdeo@deo:~/EighthBroom3439/workspace/lab03dz/build$ cmake ..
 -- The C compiler identification is GNU 14.2.0
 -- The CXX compiler identification is GNU 14.2.0
 -- Detecting C compiler ABI info
@@ -101,142 +145,63 @@ CMake Deprecation Warning at CMakeLists.txt:1 (cmake_minimum_required):
 -- Check for working CXX compiler: /usr/bin/c++ - skipped
 -- Detecting CXX compile features
 -- Detecting CXX compile features - done
--- Configuring done (1.8s)
+-- Configuring done (3.0s)
 -- Generating done (0.0s)
--- Build files have been written to: /home/vdeo/EighthBroom3439/workspace/projects/lab03/_build
-vdeo@deo:~/EighthBroom3439/workspace/projects/lab03$ cmake --build _build
-[ 50%] Building CXX object CMakeFiles/print.dir/sources/print.cpp.o
-[100%] Linking CXX static library libprint.a
-[100%] Built target print
-vdeo@deo:~/EighthBroom3439/workspace/projects/lab03$ cat >> CMakeLists.txt <<EOF
-> add_executable(example1 \${CMAKE_CURRENT_SOURCE_DIR}/examples/example1.cpp)
-> add_executable(example2 \${CMAKE_CURRENT_SOURCE_DIR}/examples/example2.cpp)
-> EOF
-vdeo@deo:~/EighthBroom3439/workspace/projects/lab03$ nano CMakeLists.txt 
-vdeo@deo:~/EighthBroom3439/workspace/projects/lab03$ cat >> CMakeLists.txt <<EOF
-> target_link_libraries(example1 print)
-> target_link_libraries(example2 print)
-> EOF
+-- Build files have been written to: /home/vdeo/EighthBroom3439/workspace/lab03dz/build
+vdeo@deo:~/EighthBroom3439/workspace/lab03dz/build$ cmake --build .
+[ 10%] Building CXX object formatter_lib/CMakeFiles/formatter.dir/formatter.cpp.o
+[ 20%] Linking CXX static library libformatter.a
+[ 20%] Built target formatter
+[ 30%] Building CXX object formatter_ex_lib/CMakeFiles/formatter_ex.dir/formatter_ex.cpp.o
+[ 40%] Linking CXX static library libformatter_ex.a
+[ 40%] Built target formatter_ex
+[ 50%] Building CXX object solver_lib/CMakeFiles/solver_lib.dir/solver.cpp.o
+/home/vdeo/EighthBroom3439/workspace/lab03dz/solver_lib/solver.cpp: In function ‘void solve(float, float, float, float&, float&)’:
+/home/vdeo/EighthBroom3439/workspace/lab03dz/solver_lib/solver.cpp:14:21: error: ‘sqrtf’ is not a member of ‘std’; did you mean ‘strtof’?
+   14 |     x1 = (-b - std::sqrtf(d)) / (2 * a);
+      |                     ^~~~~
+      |                     strtof
+/home/vdeo/EighthBroom3439/workspace/lab03dz/solver_lib/solver.cpp:15:21: error: ‘sqrtf’ is not a member of ‘std’; did you mean ‘strtof’?
+   15 |     x2 = (-b + std::sqrtf(d)) / (2 * a);
+      |                     ^~~~~
+      |                     strtof
+gmake[2]: *** [solver_lib/CMakeFiles/solver_lib.dir/build.make:79: solver_lib/CMakeFiles/solver_lib.dir/solver.cpp.o] Ошибка 1
+gmake[1]: *** [CMakeFiles/Makefile2:262: solver_lib/CMakeFiles/solver_lib.dir/all] Ошибка 2
+gmake: *** [Makefile:91: all] Ошибка 2
 ```
 
-## 4. Была произведена сборка проекта, и были протестированы файлы example1 и example2
+## 9. Она была исправлена
 ```bash
-vdeo@deo:~/EighthBroom3439/workspace/projects/lab03$ cmake --build _build
-CMake Deprecation Warning at CMakeLists.txt:1 (cmake_minimum_required):
-  Compatibility with CMake < 3.10 will be removed from a future version of
-  CMake.
-
-  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
-  to tell CMake that the project requires at least <min> but has been updated
-  to work with policies introduced by <max> or earlier.
-
-
--- Configuring done (0.0s)
--- Generating done (0.0s)
--- Build files have been written to: /home/vdeo/EighthBroom3439/workspace/projects/lab03/_build
-[ 33%] Built target print
-[ 50%] Building CXX object CMakeFiles/example1.dir/examples/example1.cpp.o
-[ 66%] Linking CXX executable example1
-[ 66%] Built target example1
-[ 83%] Building CXX object CMakeFiles/example2.dir/examples/example2.cpp.o
-[100%] Linking CXX executable example2
-[100%] Built target example2
-vdeo@deo:~/EighthBroom3439/workspace/projects/lab03$ cmake --build _build --target print
-[100%] Built target print
-vdeo@deo:~/EighthBroom3439/workspace/projects/lab03$ cmake --build _build --target example1
-[ 50%] Built target print
-[100%] Built target example1
-vdeo@deo:~/EighthBroom3439/workspace/projects/lab03$ cmake --build _build --target example2
-[ 50%] Built target print
-[100%] Built target example2
-vdeo@deo:~/EighthBroom3439/workspace/projects/lab03$ _build/example1 && echo
-hello
-vdeo@deo:~/EighthBroom3439/workspace/projects/lab03$ _build/example2
-vdeo@deo:~/EighthBroom3439/workspace/projects/lab03$ cat log.txt && echo
-hello
+vdeo@deo:~/EighthBroom3439/workspace/lab03dz$ sed -i 's/std::sqrtf/sqrtf/g' solver_lib/solver.cpp
+vdeo@deo:~/EighthBroom3439/workspace/lab03dz$ sed -i '1i#include <cmath>' solver_lib/solver.cpp
+vdeo@deo:~/EighthBroom3439/workspace/lab03dz$ head -5 solver_lib/solver.cpp
 ```
 
-## 5. Из предоставленного репозитория текущей лабораторной работы был скопирован и собран файл CMakeList.txt
+## 10. Проект был собран и протестирован
 ```bash
-vdeo@deo:~/EighthBroom3439/workspace/projects/lab03$ git clone https://github.com/tp-labs/lab03 tmp
-Клонирование в «tmp»...
-remote: Enumerating objects: 91, done.
-remote: Counting objects: 100% (30/30), done.
-remote: Compressing objects: 100% (9/9), done.
-remote: Total 91 (delta 23), reused 21 (delta 21), pack-reused 61 (from 1)
-Получение объектов: 100% (91/91), 1.02 МиБ | 2.86 МиБ/с, готово.
-Определение изменений: 100% (41/41), готово.
-vdeo@deo:~/EighthBroom3439/workspace/projects/lab03$ mv -f tmp/CMakeLists.txt .
-vdeo@deo:~/EighthBroom3439/workspace/projects/lab03$ rm -rf tmp
-vdeo@deo:~/EighthBroom3439/workspace/projects/lab03$ cat CMakeLists.txt 
-cmake_minimum_required(VERSION 3.4)
-
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-option(BUILD_EXAMPLES "Build examples" OFF)
-
-project(print)
-
-add_library(print STATIC ${CMAKE_CURRENT_SOURCE_DIR}/sources/print.cpp)
-
-target_include_directories(print PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>
-)
-
-if(BUILD_EXAMPLES)
-  file(GLOB EXAMPLE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/examples/*.cpp")
-  foreach(EXAMPLE_SOURCE ${EXAMPLE_SOURCES})
-    get_filename_component(EXAMPLE_NAME ${EXAMPLE_SOURCE} NAME_WE)
-    add_executable(${EXAMPLE_NAME} ${EXAMPLE_SOURCE})
-    target_link_libraries(${EXAMPLE_NAME} print)
-    install(TARGETS ${EXAMPLE_NAME}
-      RUNTIME DESTINATION bin
-    )
-  endforeach(EXAMPLE_SOURCE ${EXAMPLE_SOURCES})
-endif()
-
-install(TARGETS print
-    EXPORT print-config
-    ARCHIVE DESTINATION lib
-    LIBRARY DESTINATION lib
-)
-
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/ DESTINATION include)
-install(EXPORT print-config DESTINATION cmake)
-vdeo@deo:~/EighthBroom3439/workspace/projects/lab03$ cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=_install
-CMake Deprecation Warning at CMakeLists.txt:1 (cmake_minimum_required):
-  Compatibility with CMake < 3.10 will be removed from a future version of
-  CMake.
-
-  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
-  to tell CMake that the project requires at least <min> but has been updated
-  to work with policies introduced by <max> or earlier.
-
-
--- Configuring done (0.0s)
--- Generating done (0.0s)
--- Build files have been written to: /home/vdeo/EighthBroom3439/workspace/projects/lab03/_build
-vdeo@deo:~/EighthBroom3439/workspace/projects/lab03$ cmake --build _build --target install
-[100%] Built target print
-Install the project...
--- Install configuration: ""
--- Installing: /home/vdeo/EighthBroom3439/workspace/projects/lab03/_install/lib/libprint.a
--- Installing: /home/vdeo/EighthBroom3439/workspace/projects/lab03/_install/include
--- Installing: /home/vdeo/EighthBroom3439/workspace/projects/lab03/_install/include/print.hpp
--- Installing: /home/vdeo/EighthBroom3439/workspace/projects/lab03/_install/cmake/print-config.cmake
--- Installing: /home/vdeo/EighthBroom3439/workspace/projects/lab03/_install/cmake/print-config-noconfig.cmake
-vdeo@deo:~/EighthBroom3439/workspace/projects/lab03$ tree _install
-_install
-├── cmake
-│   ├── print-config.cmake
-│   └── print-config-noconfig.cmake
-├── include
-│   └── print.hpp
-└── lib
-    └── libprint.a
-
-4 directories, 4 files
+vdeo@deo:~/EighthBroom3439/workspace/lab03dz$ cd build/
+vdeo@deo:~/EighthBroom3439/workspace/lab03dz/build$ cmake --build .
+[ 20%] Built target formatter
+[ 40%] Built target formatter_ex
+[ 50%] Building CXX object solver_lib/CMakeFiles/solver_lib.dir/solver.cpp.o
+[ 60%] Linking CXX static library libsolver_lib.a
+[ 60%] Built target solver_lib
+[ 70%] Building CXX object hello_world_application/CMakeFiles/hello_world.dir/hello_world.cpp.o
+[ 80%] Linking CXX executable hello_world
+[ 80%] Built target hello_world
+[ 90%] Building CXX object solver_application/CMakeFiles/solver.dir/equation.cpp.o
+[100%] Linking CXX executable solver
+[100%] Built target solver
+vdeo@deo:~/EighthBroom3439/workspace/lab03dz/build$ ./hello_world_application/hello_world
+-------------------------
+hello, world!
+-------------------------
+vdeo@deo:~/EighthBroom3439/workspace/lab03dz/build$ ./solver_application/solver
+1 -3 2
+-------------------------
+x1 = 1.000000
+-------------------------
+-------------------------
+x2 = 2.000000
+-------------------------
 ```
-В данном репозитории лежит этот же файл
